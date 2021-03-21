@@ -12,4 +12,8 @@ Assignments from my MSc in AI courses.
 Other small projects.
 
 ### List
-- OpenCV trackbar example.
+- OpenCV trackbar example
+- PyTorch transformation tuning using OpenCV trackbars 
+- Multiple objects tracking using dlib example
+- Simple example using multiprocessing
+- Inventory management example
