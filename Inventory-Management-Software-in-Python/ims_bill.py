@@ -1,10 +1,16 @@
 from tkinter import *
 from tkinter import messagebox,ttk
 import math,random
-import pymysql
+import pyodbc
 from datetime import datetime
 
 class Bill_App:
+    server = 'localhost'
+    database = 'ims'
+    username = 'sa'
+    password = 'zXcVbNm?'
+    connection_string = 'DRIVER={ODBC Driver 17 for SQL Server};SERVER=' + server + ';DATABASE=' + database + ';UID=' + username + ';PWD=' + password
+
     def __init__(self,root):
         self.root=root
         self.root.geometry("1350x700+0+0")
@@ -170,7 +176,7 @@ class Bill_App:
         if self.search_item_no.get()=="":
             messagebox.showerror("Error","No input entered")
             return
-        con=pymysql.connect(host="localhost",user="root",password="",database="ims")
+        con=pyodbc.connect(self.connection_string)
         cur=con.cursor()
         cur.execute(f"select * from stocks where item_no='{self.search_item_no.get()}'")
         rows=cur.fetchall()
@@ -186,7 +192,7 @@ class Bill_App:
     def add_item(self):
 
         ###########
-        con=pymysql.connect(host="localhost",user="root",password="",database="ims")
+        con=pyodbc.connect(self.connection_string)
         cur=con.cursor()
         cur.execute(f"select * from stocks where item_no={self.item_no.get()}")
         rows=cur.fetchall()
@@ -213,7 +219,7 @@ class Bill_App:
             self.Stock_Table.insert('',END, values=new_item)
 
     def bill_area(self):
-        con=pymysql.connect(host="localhost",user="root",password="",database="ims")
+        con=pyodbc.connect(self.connection_string)
         cur=con.cursor()
         total=0
         if self.c_phon.get()=='' or self.c_name.get()=='':
@@ -309,7 +315,7 @@ class Bill_App:
         self.welcome_bill()
 
     def find_bill(self):
-        con=pymysql.connect(host="localhost",user="root",password="",database="ims")
+        con=pyodbc.connect(self.connection_string)
         cur=con.cursor()
         cur.execute(f"select * from sales_bill where inv_id={self.search_bill.get()}")
         rows=cur.fetchall()
