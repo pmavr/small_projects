@@ -1,7 +1,5 @@
 # small projects
 
-Assignments from my MSc in AI courses.
-
 ### List
 - Multi-layered perceptron on MNIST dataset - Deep Learning #1 assignment
 - Sentiment analysis on IMDB dataset - Deep Learning #2 assignment
