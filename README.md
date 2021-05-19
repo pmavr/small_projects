@@ -1,8 +1,6 @@
 # small projects
 
 ## Project related to MSc assignments
-
-### List
 - Multi-layered perceptron on MNIST dataset - Deep Learning #1 assignment
 - Sentiment analysis on IMDB dataset - Deep Learning #2 assignment
 - Sport analytics on soccer tv footage - Machine Learning on Multimedia Data project
@@ -12,8 +10,6 @@
 ---
 
 ## Other small projects.
-
-### List
 - OpenCV trackbar example
 - PyTorch transformation tuning using OpenCV trackbars 
 - Multiple objects tracking using dlib example
