@@ -42,7 +42,7 @@ if __name__ == '__main__':
     initial_shear = 0
     title_window = 'Torchvision Transform Tuning'
 
-    img_file = 'papafles.jpg'
+    img_file = '1372.png'
     img = cv2.imread(img_file)
 
     cv2.namedWindow(title_window)

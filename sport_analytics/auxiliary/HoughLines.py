@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from auxiliary import aux
+from sport_analytics.auxiliary import aux
 import itertools
 
 

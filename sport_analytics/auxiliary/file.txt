@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from auxiliary import ColorClusters as cc,\
+from sport_analytics.auxiliary import ColorClusters as cc,\
     ObjectDetector as od, \
     HoughLines as hl
 

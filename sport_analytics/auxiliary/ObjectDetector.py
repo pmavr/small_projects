@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from auxiliary import ColorClusters as cc
+from sport_analytics.auxiliary import ColorClusters as cc
 
 
 class ObjectDetector:

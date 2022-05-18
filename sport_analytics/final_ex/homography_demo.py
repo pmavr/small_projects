@@ -1,7 +1,7 @@
 import cv2, \
     numpy as np
-from auxiliary import ColorClusters as cc, HoughLines as hl, ObjectDetector as od
-from auxiliary.aux import object_detector_pipeline, court_detector_pipeline, show_image
+from sport_analytics.auxiliary import ColorClusters as cc, HoughLines as hl, ObjectDetector as od
+from sport_analytics.auxiliary.aux import object_detector_pipeline, court_detector_pipeline, show_image
 
 
 input_file = "../clips/belgium_japan.mp4"

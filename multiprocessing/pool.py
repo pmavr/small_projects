@@ -14,5 +14,3 @@ if __name__ == '__main__':
         results = pool.starmap(merge_names, names)
     end = time() - start
     print(f'Elapsed time: {end}\n{results}')
-
-

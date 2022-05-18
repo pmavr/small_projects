@@ -3,11 +3,11 @@
 #	--model mobilenet_ssd/MobileNetSSD_deploy.caffemodel --video race.mp4
 
 # import the necessary packages
-# from imutils.video import FPS
+from imutils.video import FPS
 import multiprocessing
 import numpy as np
 import argparse
-# import imutils
+import imutils
 import dlib
 import cv2
 
@@ -77,7 +77,7 @@ vs = cv2.VideoCapture(args["video"])
 writer = None
 
 # start the frames per second throughput estimator
-# fps = FPS().start()
+fps = FPS().start()
 
 # loop over frames from the video file stream
 while True:
@@ -195,12 +195,12 @@ while True:
 		break
 
 	# update the FPS counter
-	# fps.update()
+	fps.update()
 
 # stop the timer and display FPS information
-# fps.stop()
-# print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
-# print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+fps.stop()
+print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
+print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
 # check to see if we need to release the video writer pointer
 if writer is not None:
