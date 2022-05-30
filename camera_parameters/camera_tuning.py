@@ -51,18 +51,23 @@ def update_image(val):
     edge_map = edge_map_from_homography(homography,
                                         binary_court,
                                         image_resolution)
+    # im = cv2.imread('court.jpg')
+    # edge_map2 = cv2.warpPerspective(im, homography, image_resolution, flags=cv2.INTER_LINEAR)
     text = f"focal length: {round(camera.focal_length, 3)} \n" \
            f"cam_loc_X: {round(camera.camera_center_x, 3)} \n" \
            f"cam_loc_Y: {round(camera.camera_center_y, 3)} \n" \
            f"cam_loc_Z: {round(camera.camera_center_z, 3)} \n" \
            f"tilt: {round(camera.tilt_angle * 180 / np.pi, 3)} \n" \
-           f"pan: {round(camera.pan_angle * 180 / np.pi, 3)} \n" \
-           f"roll: {round(camera.roll_angle * 180 / np.pi, 3)} \n"
+           f"pan: {round(camera.pan_angle, 6)} \n" \
+           f"roll: {round(camera.roll_angle, 6)} \n"
     y0, dy = 30, 20
     for i, line in enumerate(text.split('\n')):
         y = y0 + i * dy
         cv2.putText(edge_map, line, (20, y),
                     cv2.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255))
+    cv2.putText(edge_map, f'{np.round(homography[0,0], 3):<8} {np.round(homography[0,1], 3):=10} {np.round(homography[0,2], 3):>10}', (900, 30), cv2.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255))
+    cv2.putText(edge_map, f'{np.round(homography[1,0], 3):<8} {np.round(homography[1,1], 3):=10} {np.round(homography[1,2], 3):>10}', (900, 50), cv2.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255))
+    cv2.putText(edge_map, f'{np.round(homography[2,0], 3):<8} {np.round(homography[2,1], 3):=10} {np.round(homography[2,2], 3):>10}', (900, 70), cv2.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255))
     cv2.circle(edge_map, (int(camera.image_center_x), int(camera.image_center_y)), 2, (0, 255, 0), 3)
     cv2.imshow(title_window, edge_map)
 
@@ -75,9 +80,10 @@ if __name__ == '__main__':
     pan_angle = 50
     roll_angle = 50
     pan_roll_angle = 50
-    camera_loc_x = 50
-    camera_loc_y = 50
-    camera_loc_z = 10
+    use_pan_roll_angle = 0
+    camera_loc_x = 53
+    camera_loc_y = 56
+    camera_loc_z = 60
 
     title_window = 'Camera Parameters Tuning'
 
@@ -88,7 +94,7 @@ if __name__ == '__main__':
     cv2.createTrackbar('Tilt angle', title_window, tilt_angle, 100, update_image)
     cv2.createTrackbar('Pan angle', title_window, pan_angle, 100, update_image)
     cv2.createTrackbar('Roll angle', title_window, roll_angle, 100, update_image)
-    cv2.createTrackbar('use pan-roll movement', title_window, pan_roll_angle, 1, update_image)
+    cv2.createTrackbar('use pan-roll movement', title_window, use_pan_roll_angle, 1, update_image)
     cv2.createTrackbar('Pan-Roll angle', title_window, pan_roll_angle, 100, update_image)
     cv2.createTrackbar('Camera loc x', title_window, camera_loc_x, 100, update_image)
     cv2.createTrackbar('Camera loc y', title_window, camera_loc_y, 100, update_image)

@@ -2,6 +2,34 @@ import numpy as np
 import cv2
 
 
+
+def show_image(img_list, msg_list=None):
+    """
+    Display N images. Esc char to close window. For debugging purposes.
+    :param img_list: A list with images to be displayed.
+    :param msg_list: A list with title for each image to be displayed. If not None, it has to be of equal length to
+    the image list.
+    :return:
+    """
+    if not isinstance(img_list, list):
+        return 'Input is not a list.'
+
+    if msg_list is None:
+        msg_list = [f'{i}' for i in range(len(img_list))]
+    else:
+        msg_list = [f'{msg}' for msg in msg_list]
+
+    for i in range(len(img_list)):
+        cv2.imshow(msg_list[i], img_list[i])
+
+    while 1:
+        k = cv2.waitKey(0)
+        if k == 27:
+            break
+    for msg in msg_list:
+        cv2.destroyWindow(msg)
+
+
 def edge_map_from_homography(homography, binary_court, edge_map_resolution):
     points = binary_court['points']
     line_segment_indexes = binary_court['line_segment_index']
@@ -11,9 +39,14 @@ def edge_map_from_homography(homography, binary_court, edge_map_resolution):
     for i in range(n):
         idx1, idx2 = line_segment_indexes[i][0], line_segment_indexes[i][1]
         p1, p2 = points[idx1], points[idx2]
+
         q1 = Camera.project_point_on_frame(p1[0], p1[1], homography)
         q2 = Camera.project_point_on_frame(p2[0], p2[1], homography)
+        print(f"i={i}: {tuple(p1)} - {tuple(p2)} => {tuple(q1)} - {tuple(q2)} ")
         cv2.line(edge_map, tuple(q1), tuple(q2), color=(255, 255, 255), thickness=4)
+        cv2.circle(edge_map, tuple(q1), radius=3, color=(0, 0, 255), thickness=2)
+        cv2.circle(edge_map, tuple(q2), radius=3, color=(0, 0, 255), thickness=2)
+        # show_image([edge_map])
 
     return edge_map
 
@@ -87,12 +120,22 @@ class Camera:
 
     @staticmethod
     def project_point_on_frame(x, y, h):
-        w = 1.0
-        p = np.zeros(3)
-        p[0], p[1], p[2] = x, y, w
+        p = np.array([x, y, 1.])
         q = h @ p
 
         assert q[2] != 0.0
+        projected_x = np.rint(q[0] / q[2]).astype(np.int)
+        projected_y = np.rint(q[1] / q[2]).astype(np.int)
+        return projected_x, projected_y
+
+    @staticmethod
+    def scale_point(x, y, s):
+        p = np.array([x, y, 1.])
+        scale = np.array([
+            [s, 0, 20],
+            [0, s, 20],
+            [0, 0, 1]])
+        q = scale @ p
         projected_x = np.rint(q[0] / q[2]).astype(np.int)
         projected_y = np.rint(q[1] / q[2]).astype(np.int)
         return projected_x, projected_y
