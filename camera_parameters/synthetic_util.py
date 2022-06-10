@@ -1,5 +1,6 @@
 import numpy as np
 import cv2 as cv
+import math
 
 from rotation import RotationUtil
 from Camera import Camera, edge_map_from_homography
@@ -179,7 +180,7 @@ def ut_generate_ptz_cameras():
     import scipy.io as sio
     # data = sio.loadmat('worldcup_dataset_camera_parameter.mat')
     # print(data.keys())
-
+    image_w, image_h = 640, 360
     cc_mean = np.array([[52.36618474, -45.15650112, 16.82156705]])
     cc_std = np.array([[2.23192608, 9.3825635, 2.94875254]])
     cc_min = np.array([[45.05679141, -66.0702037, 10.13871263]])
@@ -201,7 +202,7 @@ def ut_generate_ptz_cameras():
                                                  fl_statistics,
                                                  roll_statistics,
                                                  pan_range, tilt_range,
-                                                 1280 / 2.0, 720 / 2.0,
+                                                 image_w / 2.0, image_h / 2.0,
                                                  num_camera)
 
     binary_court = sio.loadmat('worldcup2014.mat')
@@ -210,14 +211,14 @@ def ut_generate_ptz_cameras():
         camera_params = cameras[i]
         camera = Camera(camera_params)
         h = camera.homography()
-        im = edge_map_from_homography(h, binary_court, (1280, 720))
+        im = edge_map_from_homography(h, binary_court, (image_w, image_h))
         text = f"focal length: {round(camera.focal_length, 3)} \n" \
                f"cam_loc_X: {round(camera.camera_center_x, 3)} \n" \
                f"cam_loc_Y: {round(camera.camera_center_y, 3)} \n" \
                f"cam_loc_Z: {round(camera.camera_center_z, 3)} \n" \
-               f"tilt: {round(camera.tilt_angle * 180 / np.pi, 3)} \n" \
-               f"pan: {round(camera.pan_angle * 180 / np.pi, 3)} \n" \
-               f"roll: {round(camera.roll_angle * 180 / np.pi, 3)} \n"
+               f"tilt: {round(math.degrees(camera.tilt_angle), 3)} \n" \
+               f"pan: {round(math.degrees(camera.pan_angle), 3)} \n" \
+               f"roll: {round(math.degrees(camera.roll_angle), 3)} \n"
         y0, dy = 30, 20
         for i, line in enumerate(text.split('\n')):
             y = y0 + i * dy

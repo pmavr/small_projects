@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from Camera import Camera, edge_map_from_homography
 import scipy.io as sio
-
+import math
 
 def normalize_in_range(value, min, max):
     return (((value - 0) * (max - min)) / (100 - 0)) + min
@@ -22,13 +22,13 @@ def update_image(val):
 
     focal_point = normalize_in_range(focal_point, 1463, 5696)
 
-    rotation_0 = normalize_in_range(rotation_0, 1.60195, 1.83254)
+    rotation_0 = normalize_in_range(rotation_0, 1.658062, 1.919862)
     if use_pan_angle == 1:
-        angle_val = normalize_in_range(pan_angle, -0.60999, 0.60999)
+        angle_val = normalize_in_range(pan_angle, -0.6108652, 0.6108652)
         rotation_1 = angle_val
         rotation_2 = angle_val * (-1)
     else:
-        rotation_1 = normalize_in_range(rotation_1, -0.65999, 0.65999)
+        rotation_1 = normalize_in_range(rotation_1, -0.6108652, 0.6108652)
         rotation_2 = normalize_in_range(rotation_2, -0.51343, 0.51286)
 
     camera_loc_x = normalize_in_range(camera_loc_x, 10., 90.)
@@ -57,9 +57,9 @@ def update_image(val):
            f"cam_loc_X: {round(camera.camera_center_x, 3)} \n" \
            f"cam_loc_Y: {round(camera.camera_center_y, 3)} \n" \
            f"cam_loc_Z: {round(camera.camera_center_z, 3)} \n" \
-           f"tilt: {round(camera.tilt_angle * 180 / np.pi, 3)} \n" \
-           f"pan: {round(camera.pan_angle, 6)} \n" \
-           f"roll: {round(camera.roll_angle, 6)} \n"
+           f"tilt: {round(math.degrees(camera.tilt_angle), 3)} \n" \
+           f"pan: {round(math.degrees(camera.pan_angle), 3)} \n" \
+           f"roll: {round(math.degrees(camera.roll_angle), 3)} \n"
     y0, dy = 30, 20
     for i, line in enumerate(text.split('\n')):
         y = y0 + i * dy
