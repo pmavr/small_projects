@@ -31,9 +31,9 @@ def update_image(val):
         rotation_1 = normalize_in_range(rotation_1, -0.6108652, 0.6108652)
         rotation_2 = normalize_in_range(rotation_2, -0.51343, 0.51286)
 
-    camera_loc_x = normalize_in_range(camera_loc_x, 10., 90.)
+    camera_loc_x = normalize_in_range(camera_loc_x, 46.2, 57.2)
     camera_loc_y = normalize_in_range(camera_loc_y, -66.07020, -16.74178)
-    camera_loc_z = normalize_in_range(camera_loc_z, 0., 23.01126)
+    camera_loc_z = normalize_in_range(camera_loc_z, 10.1387, 23.01126)
 
     camera_params = np.array([
         image_center_x,
@@ -57,9 +57,9 @@ def update_image(val):
            f"cam_loc_X: {round(camera.camera_center_x, 3)} \n" \
            f"cam_loc_Y: {round(camera.camera_center_y, 3)} \n" \
            f"cam_loc_Z: {round(camera.camera_center_z, 3)} \n" \
-           f"tilt: {round(math.degrees(camera.tilt_angle), 3)} \n" \
-           f"pan: {round(math.degrees(camera.pan_angle), 3)} \n" \
-           f"roll: {round(math.degrees(camera.roll_angle), 3)} \n"
+           f"tilt: {round(math.degrees(camera.tilt_angle), 3)}({camera.tilt_angle:.3}) \n" \
+           f"pan: {round(math.degrees(camera.pan_angle), 3)}({camera.pan_angle:.3}) \n" \
+           f"roll: {round(math.degrees(camera.roll_angle), 3)}({camera.roll_angle:.3}) \n"
     y0, dy = 30, 20
     for i, line in enumerate(text.split('\n')):
         y = y0 + i * dy
