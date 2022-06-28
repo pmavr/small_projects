@@ -9,7 +9,18 @@ import sys
 
 bar_range = 500
 camera_samples = []
-
+Q = 113
+R = 114
+W = 119
+A = 97
+S = 115
+D = 100
+F = 102
+G = 103
+H = 104
+J = 106
+K = 107
+L = 108
 
 def normalize_in_range(value, min, max):
     return (((value - 0) * (max - min)) / (bar_range - 0)) + min
@@ -134,8 +145,27 @@ if __name__ == '__main__':
     cv2.createTrackbar('Camera loc z', title_window, camera_loc_z, bar_range, update_image)
     update_image(1)
 
-    # Wait until user press some key
-    cv2.waitKey()
+    while 1:
+        key = cv2.waitKey(0)
+        if key == Q:    # quit
+            break
+        elif key == W:
+            val = cv2.getTrackbarPos('Tilt angle', title_window)
+            cv2.setTrackbarPos('Tilt angle', title_window, val+1)
+            update_image(1)
+        elif key == S:
+            val = cv2.getTrackbarPos('Tilt angle', title_window)
+            cv2.setTrackbarPos('Tilt angle', title_window, val - 1)
+            update_image(1)
+        elif key == A:
+            val = cv2.getTrackbarPos('Pan angle', title_window)
+            cv2.setTrackbarPos('Pan angle', title_window, val - 1)
+            update_image(1)
+        elif key == D:
+            val = cv2.getTrackbarPos('Pan angle', title_window)
+            cv2.setTrackbarPos('Pan angle', title_window, val + 1)
+            update_image(1)
+
     if len(camera_samples) > 0:
         save_camera_samples()
         print('Camera samples saved!')

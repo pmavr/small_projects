@@ -36,34 +36,26 @@ if __name__ == '__main__':
     mean_mat = np.mean(tilt_pan_z, axis=1)
     # samples = multivariate_normal.rvs(cov=cov_mat, mean=mean_mat, size=10000)
 
-    pca = PCA(n_components=2)
-    pca.fit_transform(data[['tilt', 'pan']].to_numpy(), data['z'].to_numpy())
-
-    vectors = []
-    for length, vector in zip(pca.explained_variance_, pca.components_):
-        v = vector * 3 * np.sqrt(length)
-        vec = get_vector(pca.mean_, pca.mean_ + v)
-        vectors.append(vec)
-
     fig = go.Figure(data=[
-        # go.Scatter3d(
-        #     x=data['tilt'].to_numpy(), y=data['pan'].to_numpy(), z=data['z'].to_numpy(),
-        #     mode='markers',
-        #     marker=dict(size=2, color='red', opacity=1)
-        # ),
-        go.Scatter(
-            x=data['tilt'].to_numpy(), y=data['pan'].to_numpy(), mode='markers',
-            marker=dict(size=2, color='blue', opacity=1)
-        )
+        go.Scatter3d(
+            x=data['tilt'].to_numpy(), y=data['pan'].to_numpy(), z=data['z'].to_numpy(),
+            mode='markers',
+            marker=dict(size=2, color='red', opacity=1)
+        ),
+        # go.Scatter(
+        #     x=data['tilt'].to_numpy(), y=data['z'].to_numpy(), mode='markers',
+        #     marker=dict(size=2, color='blue', opacity=1)
+        # )
     ])
     fig.update_layout(
         title='Tilt - Pan - LocYZ.4',
         scene=dict(
             xaxis=dict(title='Tilt (degrees)'),
             yaxis=dict(title='Pan (degrees)'),
-            # zaxis=dict(title='Elevation (clicks)')
+            zaxis=dict(title='Elevation (clicks)')
         ),
-        # annotations=vectors
+        xaxis_title='Tilt (degrees)',
+        yaxis_title='Elevation (clicks)',
     )
     fig.show()
 
