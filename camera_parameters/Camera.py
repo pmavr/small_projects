@@ -42,11 +42,9 @@ def edge_map_from_homography(homography, binary_court, edge_map_resolution):
 
         q1 = Camera.project_point_on_frame(p1[0], p1[1], homography)
         q2 = Camera.project_point_on_frame(p2[0], p2[1], homography)
-        print(f"i={i}: {tuple(p1)} - {tuple(p2)} => {tuple(q1)} - {tuple(q2)} ")
         cv2.line(edge_map, tuple(q1), tuple(q2), color=(255, 255, 255), thickness=4)
         cv2.circle(edge_map, tuple(q1), radius=3, color=(0, 0, 255), thickness=2)
         cv2.circle(edge_map, tuple(q2), radius=3, color=(0, 0, 255), thickness=2)
-        # show_image([edge_map])
 
     return edge_map
 

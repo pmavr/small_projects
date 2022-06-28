@@ -62,6 +62,7 @@ class SyntheticUtil:
         :param camera_num:
         :return: N * 9 cameras
         """
+
         cc_mean, cc_std, cc_min, cc_max = cc_statistics
         fl_mean, fl_std, fl_min, fl_max = fl_statistics
         roll_mean, roll_std, roll_min, roll_max = roll_statistics
@@ -77,7 +78,7 @@ class SyntheticUtil:
 
         cameras = np.zeros((camera_num, 9))
         for i in range(camera_num):
-            base_rotation = RotationUtil.rotate_y_axis(0) @ RotationUtil.rotate_x_axis(rolls[i]) @ \
+            base_rotation = RotationUtil.rotate_y_axis(0) @ RotationUtil.rotate_z_axis(rolls[i]) @ \
                             RotationUtil.rotate_x_axis(-90)
             pan_tilt_rotation = RotationUtil.pan_y_tilt_x(pans[i], tilts[i])
             rotation = pan_tilt_rotation @ base_rotation
@@ -99,22 +100,22 @@ def ut_generate_ptz_cameras():
     # data = sio.loadmat('worldcup_dataset_camera_parameter.mat')
     # print(data.keys())
     image_w, image_h = 1280, 720
-    cc_mean = np.array([[52.36618474, -45.15650112, 16.82156705]])
-    cc_std = np.array([[1.23192608, 9.3825635, 2.94875254]])
-    cc_min = np.array([[50.05679141, -66.0702037, 10.13871263]])
-    cc_max = np.array([[54.84563315, -16.74178234, 23.01126126]])
+    cc_mean = np.array([[52, -38., 17.]])
+    cc_std = np.array([[0., 0., 0.]])
+    cc_min = np.array([[52, -38., 17.]])
+    cc_max = np.array([[52., -38., 17.]])
     cc_statistics = [cc_mean, cc_std, cc_min, cc_max]
 
     fl_mean = np.array([[2500.5139785]])
     fl_std = np.array([[716.06817106]])
     fl_min = np.array([[1463.16468414]])
-    fl_max = np.array([[3937.98454881]])
+    fl_max = np.array([[5937.98454881]])
     fl_statistics = [fl_mean, fl_std, fl_min, fl_max]
     roll_statistics = [0, 0.2, -1.0, 1.0]
 
-    pan_range = [-3.5, 3.5]
-    tilt_range = [-12, -10]
-    num_camera = 100
+    pan_range = [0, 35.]
+    tilt_range = [-14, -9.5]
+    num_camera = 10000
 
     cameras = SyntheticUtil.generate_ptz_cameras(cc_statistics,
                                                  fl_statistics,
