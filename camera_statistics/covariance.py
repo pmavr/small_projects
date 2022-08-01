@@ -1,48 +1,41 @@
 # Importing the necessary modules
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy.stats import multivariate_normal
+from scipy.interpolate import interp2d
+import plotly.graph_objs as go
 
+
+def lerp(t, times, p1, p2):
+    dx = p2[0] - p1[0]
+    dy = p2[1] - p1[1]
+    dt = (t-1) / (times-1)
+    return dt*dx + p1[0], dt*dy + p1[1]
+
+def interpolate_points(p1, p2, n_points):
+    return np.array([lerp(v, n_points, p1, p2) for v in range(n_points)])
 
 if __name__ == '__main__':
-    plt.style.use('seaborn-dark')
-    plt.rcParams['figure.figsize'] = 14, 6
 
-    # Initializing the random seed
-    random_seed = 1000
+    n_points = 20
+    pan = np.linspace(34.4, 36.2, n_points)
+    tilt = np.linspace(-16.23482, -16.39415, n_points)
+    z = np.linspace(26.42808, 24.96796, n_points)
+    # pts = interpolate_between_2_points(p1, p2, n_points)
+    print('gr')
 
-    # List containing the variance
-    # covariance values
-    cov_val = [-.99, 0, .99]
-
-    # Setting mean of the distributino to
-    # be at (0,0)
-    mean = np.array([0, 0])
-
-    # Iterating over different covariance
-    # values
-    for idx, val in enumerate(cov_val):
-        plt.subplot(1, 3, idx + 1)
-
-        # Initializing the covariance matrix
-        cov = np.array([[.6, val], [val, .6]])
-
-        # Generating a Gaussian bivariate distribution
-        # with given mean and covariance matrix
-        distr = multivariate_normal(cov=cov, mean=mean,
-                                    seed=random_seed)
-
-        # Generating 5000 samples out of the
-        # distribution
-        data = distr.rvs(size=5000)
-
-        # Plotting the generated samples
-        plt.plot(data[:, 0], data[:, 1], 'o', c='lime',
-                 markeredgewidth=0.5,
-                 markeredgecolor='black')
-        plt.title(f'Covariance between x1 and x2 = {val}')
-        plt.xlabel('x1')
-        plt.ylabel('x2')
-        plt.axis('equal')
-
-    plt.show()
+    plots = [
+        go.Scatter3d(
+            x=pan, y=tilt, z=z, name='camera space',
+            mode='markers',
+            marker=dict(size=5, color='red', opacity=1)
+        ),
+    ]
+    fig = go.Figure(data=plots)
+    fig.update_layout(
+        title=f'X - Y - Z ',
+        scene=dict(
+            xaxis=dict(title='X'),
+            yaxis=dict(title='Y'),
+            zaxis=dict(title='Z')
+        ),
+    )
+    fig.show()

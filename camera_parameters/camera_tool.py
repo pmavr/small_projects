@@ -8,6 +8,7 @@ import math
 import sys
 
 bar_range = 500
+pan_bar_range = 1000
 camera_samples = []
 Q = 113
 R = 114
@@ -22,8 +23,8 @@ J = 106
 K = 107
 L = 108
 
-def normalize_in_range(value, min, max):
-    return (((value - 0) * (max - min)) / (bar_range - 0)) + min
+def normalize_in_range(value, min, max, b_range):
+    return (((value - 0) * (max - min)) / (b_range - 0)) + min
 
 
 def update_image(val):
@@ -36,16 +37,16 @@ def update_image(val):
     yloc = cv2.getTrackbarPos('Camera loc y', title_window)
     zloc = cv2.getTrackbarPos('Camera loc z', title_window)
 
-    fp = normalize_in_range(fp, 1000, 6000)
+    fp = normalize_in_range(fp, 1000, 6000, bar_range)
 
-    xloc = normalize_in_range(xloc, 46.2, 57.2)
-    yloc = normalize_in_range(yloc, -66.07020, -16.74178)
-    zloc = normalize_in_range(zloc, 10.1387, 23.01126)
+    xloc = normalize_in_range(xloc, 46.2, 57.2, bar_range)
+    yloc = normalize_in_range(yloc, -66.07020, -16.74178, bar_range)
+    zloc = normalize_in_range(zloc, 10.1387, 23.01126, bar_range)
     zloc = yloc * (-.4)
 
-    tilt_angle = normalize_in_range(tilt_angle, -20., -5.)
-    pan_angle = normalize_in_range(pan_angle, -60., 60.)
-    roll_angle = normalize_in_range(roll_angle, -1., 1.)
+    tilt_angle = normalize_in_range(tilt_angle, -20., -5., bar_range)
+    pan_angle = normalize_in_range(pan_angle, -60., 60., pan_bar_range)
+    roll_angle = normalize_in_range(roll_angle, -1., 1., bar_range)
 
     params = np.array([
         image_center_x,
@@ -123,7 +124,7 @@ if __name__ == '__main__':
     image_center_y = image_resolution[1]/2
     focal_point = 0
     tilt_angle = int(bar_range / 2)
-    pan_angle = int(bar_range / 2)
+    pan_angle = int(pan_bar_range / 2)
     roll_angle = int(bar_range / 2)
     camera_loc_x = int(bar_range * .57)
     camera_loc_y = int(bar_range / 2)
@@ -138,7 +139,7 @@ if __name__ == '__main__':
     cv2.createTrackbar('Record params', title_window, record_params, 1, update_image)
     cv2.createTrackbar('Focal length', title_window, focal_point, bar_range, update_image)
     cv2.createTrackbar('Tilt angle', title_window, tilt_angle, bar_range, update_image)
-    cv2.createTrackbar('Pan angle', title_window, pan_angle, bar_range, update_image)
+    cv2.createTrackbar('Pan angle', title_window, pan_angle, pan_bar_range, update_image)
     cv2.createTrackbar('Roll angle', title_window, roll_angle, bar_range, update_image)
     cv2.createTrackbar('Camera loc x', title_window, camera_loc_x, bar_range, update_image)
     cv2.createTrackbar('Camera loc y', title_window, camera_loc_y, bar_range, update_image)
