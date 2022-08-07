@@ -64,20 +64,13 @@ def update_image(val):
     if record_params == 1:
         camera_samples.append(params)
 
-    base_rotation = RotationUtil.rotate_y_axis(0) @ RotationUtil.rotate_z_axis(roll_angle) @ \
-                    RotationUtil.rotate_x_axis(-90)
-    pan_tilt_rotation = RotationUtil.pan_y_tilt_x(pan_angle, tilt_angle)
-    rotation = pan_tilt_rotation @ base_rotation
-    rot_vec, _ = cv2.Rodrigues(rotation)
-    tilt, pan, roll = rot_vec[0].item(), rot_vec[1].item(), rot_vec[2].item()
-
     camera_params = np.array([
         image_center_x,
         image_center_y,
         fp,
-        tilt,
-        pan,
-        roll,
+        tilt_angle,
+        pan_angle,
+        roll_angle,
         xloc,
         yloc,
         zloc

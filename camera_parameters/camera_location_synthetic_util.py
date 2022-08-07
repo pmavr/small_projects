@@ -68,20 +68,12 @@ def generate_ptz_cameras(cc_statistics,
     tilt_angles = extrapolate_tilt_angle(camera_centers[:, 2], camera_centers[:, 1]) * (-1)
     roll_angles = np.random.normal(0., 0., (num_of_cameras, 1))
 
-    cameras = np.zeros((num_of_cameras, 9))
-    for i in range(num_of_cameras):
-        base_rotation = RotationUtil.rotate_y_axis(0) @ RotationUtil.rotate_z_axis(roll_angles[i]) @ \
-                        RotationUtil.rotate_x_axis(-90)
+    cameras = np.concatenate([
+        np.ones((num_of_cameras, 1)) * u,
+        np.ones((num_of_cameras, 1)) * v,
+        focal_lengths, tilt_angles, pan_angles, roll_angles, camera_centers],
+        axis=1)
 
-        pan_tilt_rotation = RotationUtil.pan_y_tilt_x(pan_angles[i], tilt_angles[i])
-        rotation = pan_tilt_rotation @ base_rotation
-        rot_vec, _ = cv.Rodrigues(rotation)
-
-        cameras[i][0], cameras[i][1] = u, v
-        cameras[i][2] = focal_lengths[i]
-        cameras[i][3], cameras[i][4], cameras[i][5] = rot_vec[0], rot_vec[1], rot_vec[2]
-        cameras[i][6], cameras[i][7], cameras[i][8] = camera_centers[i][0], camera_centers[i][1], camera_centers[i][
-            2]
     return cameras
 
 
@@ -89,14 +81,14 @@ def extrapolate_tilt_angle(z, y):
     a = np.abs(z)
     b = np.abs(y)+court_mid_distance_y
     angle = np.arctan(a/b)
-    return np.degrees(angle)
+    return np.degrees(angle).reshape(-1,1)
 
 
 def extrapolate_pan_angle(x, y):
     a = x - court_mid_distance_x
     b = np.abs(y)+court_mid_distance_y
     angle = np.arctan(a/b)
-    return np.degrees(angle)
+    return np.degrees(angle).reshape(-1,1)
 
 
 def generate_camera_centers(cc_statistics, y_intervals=.2):
@@ -155,9 +147,9 @@ def ut_generate_ptz_cameras():
                f"cam_loc_X: {round(camera.camera_center_x, 3)} \n" \
                f"cam_loc_Y: {round(camera.camera_center_y, 3)} \n" \
                f"cam_loc_Z: {round(camera.camera_center_z, 3)} \n" \
-               f"tilt: {round(math.degrees(camera.tilt_angle), 3):.3f} \n" \
-               f"pan: {round(math.degrees(camera.pan_angle), 3):.3f} \n" \
-               f"roll: {round(math.degrees(camera.roll_angle), 3):.3f} \n"
+               f"tilt: {round(camera.tilt_angle, 3):.3f} \n" \
+               f"pan: {round(camera.pan_angle, 3):.3f} \n" \
+               f"roll: {round(camera.roll_angle, 3):.3f} \n"
         y0, dy = 30, 20
         for i, line in enumerate(text.split('\n')):
             y = y0 + i * dy

@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-
+from rotation import RotationUtil
 
 
 def show_image(img_list, msg_list=None):
@@ -63,6 +63,11 @@ class Camera:
         self.camera_center_x = camera_params[6]
         self.camera_center_y = camera_params[7]
         self.camera_center_z = camera_params[8]
+        base_rotation = RotationUtil.rotate_y_axis(0) @ RotationUtil.rotate_z_axis(self.roll_angle) @ \
+                        RotationUtil.rotate_x_axis(-90)
+        pan_tilt_rotation = RotationUtil.pan_y_tilt_x(self.pan_angle, self.tilt_angle)
+        rotation = pan_tilt_rotation @ base_rotation
+        self.rot_vector, _ = cv2.Rodrigues(rotation)
 
     def calibration_matrix(self):
         return np.array([[self.focal_length, 0, self.image_center_x],
@@ -77,11 +82,7 @@ class Camera:
         return camera_center
 
     def rotation_matrix(self):
-        rotation = np.zeros(3)
-        rotation[0] = self.tilt_angle
-        rotation[1] = self.pan_angle
-        rotation[2] = self.roll_angle
-        rotation, _ = cv2.Rodrigues(rotation)
+        rotation, _ = cv2.Rodrigues(self.rot_vector)
         return rotation
 
     def homography(self):
