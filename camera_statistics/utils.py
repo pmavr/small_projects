@@ -4,13 +4,8 @@ from scipy.optimize import curve_fit
 from collections import defaultdict
 
 
-def read_data():
-    files = [
-        '2022_06_28_15_09_13-15049',
-        '2022_06_28_15_21_00-8344',
-        # 'mirror_data'
-    ]
-    dataset = [np.load(f'{f}.npy') for f in files]
+def read_data(files_list):
+    dataset = [np.load(f'{f}.npy') for f in files_list]
     dataset = np.concatenate(dataset, axis=0)
     data = pd.DataFrame(
         dataset, columns=['u', 'v', 'fl', 'tilt', 'pan', 'roll', 'x', 'y', 'z'])

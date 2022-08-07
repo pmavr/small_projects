@@ -34,17 +34,18 @@ def update_image(val):
     pan_angle = cv2.getTrackbarPos('Pan angle', title_window)
     roll_angle = cv2.getTrackbarPos('Roll angle', title_window)
     xloc = cv2.getTrackbarPos('Camera loc x', title_window)
-    yloc = cv2.getTrackbarPos('Camera loc y', title_window)
-    zloc = cv2.getTrackbarPos('Camera loc z', title_window)
+    yzloc = cv2.getTrackbarPos('Camera loc y-z', title_window)
+    bleachers_inclination_yz = cv2.getTrackbarPos('Bleachers slope y-z', title_window)
 
     fp = normalize_in_range(fp, 1000, 6000, bar_range)
 
     xloc = normalize_in_range(xloc, 46.2, 57.2, bar_range)
-    yloc = normalize_in_range(yloc, -66.07020, -16.74178, bar_range)
-    zloc = normalize_in_range(zloc, 10.1387, 23.01126, bar_range)
-    zloc = yloc * (-.4)
+    yloc = normalize_in_range(yzloc, -66., -25., bar_range)
+    bleachers_inclination_yz = normalize_in_range(bleachers_inclination_yz, .3, .45, bar_range)
+    # zloc = normalize_in_range(zloc, 10.1387, 23.01126, bar_range)
+    zloc = yloc * (-bleachers_inclination_yz)
 
-    tilt_angle = normalize_in_range(tilt_angle, -20., -5., bar_range)
+    tilt_angle = normalize_in_range(tilt_angle, -25., 0., bar_range)
     pan_angle = normalize_in_range(pan_angle, -60., 60., pan_bar_range)
     roll_angle = normalize_in_range(roll_angle, -1., 1., bar_range)
 
@@ -93,6 +94,7 @@ def update_image(val):
            f"cam_loc_X: {round(camera.camera_center_x, 3)} \n" \
            f"cam_loc_Y: {round(camera.camera_center_y, 3)} \n" \
            f"cam_loc_Z: {round(camera.camera_center_z, 3)} \n" \
+           f"YZ slope: {round(bleachers_inclination_yz, 3)} \n" \
            f"tilt: {round(tilt_angle, 3):.3f} \n" \
            f"pan: {round(pan_angle, 3):.3f} \n" \
            f"roll: {round(roll_angle, 3):.3f} \n"
@@ -122,13 +124,13 @@ if __name__ == '__main__':
     image_resolution = (1280, 720)
     image_center_x = image_resolution[0]/2
     image_center_y = image_resolution[1]/2
-    focal_point = 0
+    focal_point = int(bar_range / 2)
     tilt_angle = int(bar_range / 2)
     pan_angle = int(pan_bar_range / 2)
     roll_angle = int(bar_range / 2)
     camera_loc_x = int(bar_range * .57)
-    camera_loc_y = int(bar_range / 2)
-    camera_loc_z = int(bar_range / 2)
+    camera_loc_yz = int(bar_range / 2)
+    bleachers_inclination_yz = int(bar_range / 2)
     record_params = 0
 
     title_window = 'Camera Tool'
@@ -142,8 +144,8 @@ if __name__ == '__main__':
     cv2.createTrackbar('Pan angle', title_window, pan_angle, pan_bar_range, update_image)
     cv2.createTrackbar('Roll angle', title_window, roll_angle, bar_range, update_image)
     cv2.createTrackbar('Camera loc x', title_window, camera_loc_x, bar_range, update_image)
-    cv2.createTrackbar('Camera loc y', title_window, camera_loc_y, bar_range, update_image)
-    cv2.createTrackbar('Camera loc z', title_window, camera_loc_z, bar_range, update_image)
+    cv2.createTrackbar('Camera loc y-z', title_window, camera_loc_yz, bar_range, update_image)
+    cv2.createTrackbar('Bleachers slope y-z', title_window, bleachers_inclination_yz, bar_range, update_image)
     update_image(1)
 
     while 1:

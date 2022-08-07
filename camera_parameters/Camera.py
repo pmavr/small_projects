@@ -46,6 +46,9 @@ def edge_map_from_homography(homography, binary_court, edge_map_resolution):
         cv2.circle(edge_map, tuple(q1), radius=3, color=(0, 0, 255), thickness=2)
         cv2.circle(edge_map, tuple(q2), radius=3, color=(0, 0, 255), thickness=2)
 
+    # draw court center spot
+    q1 = Camera.project_point_on_frame(52.500276, 34.001964, homography)
+    cv2.circle(edge_map, tuple(q1), radius=3, color=(0, 0, 255), thickness=2)
     return edge_map
 
 

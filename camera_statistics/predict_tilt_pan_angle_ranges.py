@@ -21,11 +21,24 @@ def calculate_loss(pred, gt):
     return np.sum(np.abs(pred - gt))
 
 
+def read_data():
+    files = [
+        'pan-tilt-z_samples_1',
+        'pan-tilt-z_samples_2',
+        # 'pan-tilt-z_samples_mirror'
+    ]
+    dataset = [np.load(f'{f}.npy') for f in files]
+    dataset = np.concatenate(dataset, axis=0)
+    data = pd.DataFrame(
+        dataset, columns=['u', 'v', 'fl', 'tilt', 'pan', 'roll', 'x', 'y', 'z'])
+    return data
+
+
 
 
 if __name__ == '__main__':
 
-    data = utils.read_data()
+    data = read_data()
     unique_elevations = data['z'].unique()
 
     tilt_at_max_pan = utils.get_tilt_angles_at_max_pan_angle(data, unique_elevations)

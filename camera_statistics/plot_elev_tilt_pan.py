@@ -7,9 +7,15 @@ import utils
 
 
 if __name__ == '__main__':
-    data = utils.read_data()
+    files = [
+        'pan-tilt-z_samples_1',
+        'pan-tilt-z_samples_2',
+        # 'pan-tilt-z_samples_mirror'
+    ]
+    data = utils.read_data(files)
 
     unique_elevations = data['z'].unique()
+    forward_shift = data['y'].unique()
 
     x = data['pan'].to_numpy()
     y = data['tilt'].to_numpy()
