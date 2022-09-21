@@ -4,15 +4,6 @@ from scipy.interpolate import interp2d
 import plotly.graph_objs as go
 
 
-def lerp(t, times, p1, p2):
-    dx = p2[0] - p1[0]
-    dy = p2[1] - p1[1]
-    dt = (t-1) / (times-1)
-    return dt*dx + p1[0], dt*dy + p1[1]
-
-def interpolate_points(p1, p2, n_points):
-    return np.array([lerp(v, n_points, p1, p2) for v in range(n_points)])
-
 if __name__ == '__main__':
 
     n_points = 20
