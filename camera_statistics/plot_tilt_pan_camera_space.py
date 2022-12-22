@@ -1,10 +1,9 @@
-import math
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
 import utils
 from torch.utils.data import Dataset
-from camera_parameters.Camera import Camera
+from camera_statistics.Camera import Camera
 
 
 class SyntheticCameraAngleDataset(Dataset):
@@ -23,6 +22,7 @@ class SyntheticCameraAngleDataset(Dataset):
         self.tilt_density = params['tilt_density']
         fl_statistics = params['camera_param_distributions']['focal_length']
         self.fl_min, self.fl_max = fl_statistics['min'], fl_statistics['max']
+        self.extra_tilt_threshold = 2
 
         self.camera_poses = self.generate_ptz_cameras()
         self.num_of_cameras = self.camera_poses.shape[0]
@@ -96,7 +96,7 @@ class SyntheticCameraAngleDataset(Dataset):
                 bmax = self.b_max_for_sides(amax, pan_angle)
                 bmin = self.b_min_for_sides(cmin, pan_angle)
 
-                max_tilt = self.tilt_angle(self.z, bmax) * (-1)
+                max_tilt = self.tilt_angle(self.z, bmax) * (-1) + self.extra_tilt_threshold
                 min_tilt = self.tilt_angle(self.z, bmin) * (-1)
 
             tilt_range[i, 0] = min_tilt
@@ -187,8 +187,9 @@ if __name__ == '__main__':
                 'max': 5937.98454881
             }
         },
-        'pan_density': 2,
+        'pan_density': 5,
         'tilt_density': .3,
+
     }
     image_w, image_h = 1280, 720
     x = 50.776

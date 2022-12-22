@@ -4,7 +4,6 @@ import plotly.graph_objs as go
 from torch.utils.data import Dataset
 import random
 
-from camera_parameters.original_synthetic_util import ut_generate_ptz_cameras
 import utils
 
 
@@ -13,7 +12,6 @@ def normal_camera_locations():
     cc_std = np.array([[2.23192608, 9.3825635, 2.94875254]])
     cc_min = np.array([[45.05679141, -66.0702037, 10.13871263]])
     cc_max = np.array([[60.84563315, -16.74178234, 23.01126126]])
-    cc_statistics = [cc_mean, cc_std, cc_min, cc_max]
     camera_centers = np.random.normal(cc_mean, cc_std, (camera_num, 3))
     return camera_centers
 
@@ -34,7 +32,7 @@ class SyntheticCameraDataset(Dataset):
 
     def generate_ptz_cameras(self, num_of_cameras):
         u, v = self.image_w / 2.0, self.image_h / 2.0,
-        fl_and_camera_centers = self.generate_camera_centers(num_of_cameras)
+        fl_and_camera_centers = self.generate_camera_centers_v3(num_of_cameras)
 
         pan_angles = self.extrapolate_pan_angle(fl_and_camera_centers[:, 1], fl_and_camera_centers[:, 2]) * (-1)
         tilt_angles = self.extrapolate_tilt_angle(fl_and_camera_centers[:, 3], fl_and_camera_centers[:, 2]) * (-1)
@@ -60,23 +58,87 @@ class SyntheticCameraDataset(Dataset):
         cc_min, cc_max = cc_statistics['min'], cc_statistics['max']
         x_min, x_max = cc_min[0], cc_max[0]
         y_min, y_max = cc_min[1], cc_max[1]
+        z_min, z_max = cc_min[2], cc_max[2]
 
-        fl, x, y, slope = np.mgrid[
+        fl, x, origin_y, origin_z = np.mgrid[
                           fl_min:fl_max:self.params['fl_density'],
                           x_min:x_max:self.params['xloc_density'],
                           y_min:y_max:self.params['yloc_density'],
-                          .3:.45:self.params['slope_density']]
+                          z_min:z_max:self.params['zloc_density']]
 
-        fl_xy_slope = np.stack([fl.flatten(), x.flatten(), y.flatten(), slope.flatten()], axis=1)
-        fl_xy_slope = fl_xy_slope[random.sample(range(len(fl_xy_slope)), num_of_cameras), :]
-        z = self.bleachers_line(y=fl_xy_slope[:, 2], slope=fl_xy_slope[:, 3])
-        fl_xyz = np.concatenate([fl_xy_slope[:, :3], z.reshape(-1,1)], axis=1)
+        fl_xy = np.stack([fl.flatten(), x.flatten(), origin_y.flatten()], axis=1)
+        fl_xy = fl_xy[random.sample(range(len(fl_xy)), int(num_of_cameras/2)), :]
+        z = self.get_z_from_y(y=fl_xy[:, 2])
+        fl_xyz1 = np.concatenate([fl_xy, z.reshape(-1, 1)], axis=1)
+
+        fl_xz = np.stack([fl.flatten(), x.flatten(), origin_z.flatten()], axis=1)
+        fl_xz = fl_xz[random.sample(range(len(fl_xz)), int(num_of_cameras/2)), :]
+        y = self.get_y_from_z(z=fl_xz[:, 2])
+        fl_xyz2 = np.concatenate([fl_xz[:, :2], y.reshape(-1, 1), fl_xz[:, 2].reshape(-1, 1)], axis=1)
+
+        fl_xyz = np.concatenate([fl_xyz1, fl_xyz2], axis=0)
         return fl_xyz
 
-    @staticmethod
-    def bleachers_line(y, slope):
+    def generate_camera_centers_v2(self, num_of_cameras):
+        cc_statistics = self.params['camera_param_distributions']['camera_center']
+        fl_statistics = self.params['camera_param_distributions']['focal_length']
+
+        fl_min, fl_max = fl_statistics['min'], fl_statistics['max']
+        cc_min, cc_max = cc_statistics['min'], cc_statistics['max']
+        x_min, x_max = cc_min[0], cc_max[0]
+        y_min, y_max = cc_min[1], cc_max[1]
+        z_min, z_max = cc_min[2], cc_max[2]
+
+        fl, x, y, z = np.mgrid[
+                          0:1:1,
+                          x_min:x_max:self.params['xloc_density'],
+                          y_min:y_max:self.params['yloc_density'],
+                          z_min:z_max:self.params['zloc_density']]
+
+        fl_xyz = np.stack([fl.flatten(), x.flatten(), y.flatten(), z.flatten()], axis=1)
+
+
+        filter = (- fl_xyz[:,3] / fl_xyz[:,2] > .3) & (- fl_xyz[:,3] / fl_xyz[:,2] < .45)
+        fl_xyz = fl_xyz[filter]
+        fl_xyz = fl_xyz[random.sample(range(len(fl_xyz)), num_of_cameras), :]
+
+        return fl_xyz
+
+    def generate_camera_centers_v3(self, num_of_cameras):
+        cc_statistics = self.params['camera_param_distributions']['camera_center']
+        fl_statistics = self.params['camera_param_distributions']['focal_length']
+
+        slope_max = self.params['camera_param_distributions']['bleachers_slope']['max']
+        slope_min = self.params['camera_param_distributions']['bleachers_slope']['min']
+        fl_min, fl_max = fl_statistics['min'], fl_statistics['max']
+        cc_min, cc_max = cc_statistics['min'], cc_statistics['max']
+        x_min, x_max = cc_min[0], cc_max[0]
+        y_min, y_max = cc_min[1], cc_max[1]
+        z_min, z_max = cc_min[2], cc_max[2]
+
+        fl, x, y, z = np.mgrid[
+                      0:1:1,
+                      x_min:x_max:self.params['xloc_density'],
+                      y_min:y_max:self.params['yloc_density'],
+                      z_min:z_max:self.params['zloc_density']]
+
+        fl_xyz = np.stack([fl.flatten(), x.flatten(), y.flatten(), z.flatten()], axis=1)
+        filter = (- fl_xyz[:, 3] / fl_xyz[:, 2] > slope_min) & (- fl_xyz[:, 3] / fl_xyz[:, 2] < slope_max)
+        fl_xyz = fl_xyz[filter]
+        fl_xyz = fl_xyz[random.sample(range(len(fl_xyz)), num_of_cameras), :]
+        return fl_xyz
+
+    def get_z_from_y(self, y):
+        slope_range = self.params['camera_param_distributions']['bleachers_slope']
+        slope = np.random.uniform(slope_range['min'], slope_range['max'], y.size)
         z = y * (-slope)
         return z
+
+    def get_y_from_z(self, z):
+        slope_range = self.params['camera_param_distributions']['bleachers_slope']
+        slope = np.random.uniform(slope_range['min'], slope_range['max'], z.size)
+        y = z/(-slope)
+        return y
 
     def extrapolate_tilt_angle(self, z, y):
         a = np.abs(z)
@@ -98,6 +160,23 @@ class SyntheticCameraDataset(Dataset):
         return d + std
 
 
+def view_endpoints(cameras):
+    endpoints = []
+    for _, c in cameras.iterrows():
+        x, y, z = c['x'], c['y'], c['z']
+        tilt, pan = c['tilt'], c['pan']
+        theta = np.radians(90 - abs(tilt))
+        dist_from_camera = abs(z / np.cos(theta))
+        horizontal_dist_from_camera = dist_from_camera * np.sin(theta)
+
+        phi = np.radians(pan)
+        x_endpoint = horizontal_dist_from_camera * np.sin(phi) + x
+        y_endpoint = horizontal_dist_from_camera * np.cos(phi) + y
+
+        endpoints.append([x_endpoint, y_endpoint, 0.])
+    return np.array(endpoints)
+
+
 if __name__ == '__main__':
     # data = utils.read_data(['forward_shift_elevation_tilt_samples_v2'])
 
@@ -112,19 +191,24 @@ if __name__ == '__main__':
             'camera_center': {
                 'mean': [52.36618474, -45.15650112, 16.82156705],
                 'std': [1.23192608, 9.3825635, 2.94875254],
-                'min': [50.05679141, -66., 10.13871263],
-                'max': [54.84563315, -25., 23.01126126],
+                'min': [45.05679141, -66.0702037, 10.13871263],
+                'max': [60.84563315, -16.74178234, 23.01126126],
             },
             'focal_length': {
                 'mean': 2500.5139785,
                 'std': 716.06817106,
                 'min': 1463.16468414,
                 'max': 3580.
+            },
+            'bleachers_slope': {
+                'min': .3,
+                'max': .45
             }
         },
         'fl_density': 150,
         'xloc_density': .1,
         'yloc_density': .1,
+        'zloc_density': .1,
         'slope_density': .01,
         'pan_std': .5,
         'tilt_std': .5
@@ -134,6 +218,7 @@ if __name__ == '__main__':
     dataset = SyntheticCameraDataset(data_params, num_of_cameras=camera_num)
     camera_poses = dataset.camera_poses
     camera_poses = pd.DataFrame(camera_poses, columns=['u', 'v', 'fl', 'tilt', 'pan', 'roll', 'x', 'y', 'z'])
+    endpoints = view_endpoints(camera_poses)
     binary_court = utils.binary_court()
 
     original_poses = normal_camera_locations()
@@ -163,6 +248,14 @@ if __name__ == '__main__':
             marker=dict(size=1, color='darkblue', opacity=1)
         )
         plots.append(line)
+
+    # for (_, c), e in zip(camera_poses.iterrows(), endpoints):
+    #     line = np.stack([np.array([c['x'], c['y'], c['z']]), e], axis=0)
+    #     plots.append(go.Scatter3d(
+    #         x=line[:, 0], y=line[:, 1], z=line[:, 2],
+    #         line=dict(color='green', width=1),
+    #         marker=dict(size=1, color='green', opacity=1)
+    #     ))
 
     fig = go.Figure(data=plots)
     fig.update_layout(
